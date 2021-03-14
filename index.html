@@ -106,7 +106,8 @@
                 measure.appendChild(attributes);
             }
             for (let j = 0; j < 4; j++) {
-                measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
+                measure.appendChild(createRandomNoteWithinRangeInclusive("A2", "G3")); // beginner mode bass clef
+                // measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
                 // measure.appendChild(createRandomNoteWithinRangeInclusive("B1", "F4")); // hard mode bass clef
             }
             baseMusicXML.getElementsByTagName("part")[0].appendChild(measure);
