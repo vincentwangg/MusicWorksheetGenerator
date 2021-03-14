@@ -37,7 +37,7 @@
 <script>
     // Random copied stuff
     function copyTextToClipboard(text) {
-        var textArea = document.createElement("textarea");
+        let textArea = document.createElement("textarea");
 
         // Place in the top-left corner of screen regardless of scroll position.
         textArea.style.position = 'fixed';
@@ -68,8 +68,8 @@
         textArea.select();
 
         try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'successful' : 'unsuccessful';
+            let successful = document.execCommand('copy');
+            let msg = successful ? 'successful' : 'unsuccessful';
         } catch (err) {
             document.getElementById("debugOutput").innerText = "Error happened when copying to clipboard. Here's the text to manually copy for yourself: " + text;
         }
@@ -77,6 +77,7 @@
         document.body.removeChild(textArea);
     }
 </script>
+<button onclick="startDrawing()">Start drawing</button>
 <div id="osmdContainer"></div>
 <button onclick="copyXML()">Copy XML to clipboard</button>
 <script>
@@ -114,10 +115,48 @@
     osmd
         .load(new XMLSerializer().serializeToString(baseMusicXML))
         .then(
-            function() {
+            function () {
                 osmd.render();
             }
         );
+
+    function startDrawing() {
+        // Allow drawing on canvas
+        let canvas = document.getElementById("osmdCanvasVexFlowBackendCanvas1");
+
+        // get canvas 2D context and set him correct size
+        let ctx = canvas.getContext('2d');
+
+        // last known position
+        let pos = { x: 0, y: 0 };
+
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mousedown', setPosition);
+
+        // new position from mouse event
+        function setPosition(event) {
+            let rect = canvas.getBoundingClientRect();
+            pos.x = event.clientX - rect.left;
+            pos.y = event.clientY - rect.top;
+        }
+
+        function draw(e) {
+            // mouse left button must be pressed
+            if (e.buttons !== 1) return;
+
+            ctx.beginPath(); // begin
+
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000000';
+
+            ctx.moveTo(pos.x, pos.y); // from
+            setPosition(e);
+            ctx.lineTo(pos.x, pos.y); // to
+
+            ctx.stroke(); // draw it!
+        }
+    }
 
     function createElement(elementName) {
         return baseMusicXML.createElement(elementName);
