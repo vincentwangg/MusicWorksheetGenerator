@@ -81,12 +81,15 @@
     let baseMusicXML = new DOMParser().parseFromString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\"><score-partwise version=\"3.1\"><part-list><score-part id=\"P1\"><part-name>Music</part-name></score-part></part-list><part id=\"P1\"></part></score-partwise>", "application/xml");
 
     let measure1 = baseMusicXML.createElement("measure");
-    measure1.setAttribute("number", "1");
     baseMusicXML.getElementsByTagName("part")[0].appendChild(measure1);
     let attributes = baseMusicXML.createElement("attributes");
     attributes.appendChild(createTimeSignature());
     attributes.appendChild(createClef("bass"));
+    let divisions = createElement("divisions");
+    divisions.innerHTML = "2";
+    measure1.appendChild(divisions);
     measure1.appendChild(attributes);
+    measure1.appendChild(createNote("quarter", "C", 4));
 
     // document.getElementById("output").innerText = prettifyXml(new XMLSerializer().serializeToString(baseMusicXML));
     document.getElementById("output").innerText = new XMLSerializer().serializeToString(baseMusicXML);
@@ -120,11 +123,30 @@
         return time;
     }
 
-    function createNote() {
+    /**
+     * @param step If doing F4, step is F
+     * @param octave If doing F4, octave is 4
+     */
+    function createNote(noteType = "quarter", step, octave) {
         let note = createElement("note");
         let pitch = createElement("pitch");
-        let step = createElement("step");
-        let octave = createElement("octave");
+        let stepElement = createElement("step");
+        let octaveElement = createElement("octave");
+        let durationElement = createElement("duration");
+        let type = createElement("type");
+
+        stepElement.innerHTML = step;
+        octaveElement.innerHTML = octave;
+        durationElement.innerHTML = "2"; // todo change later to be dynamic
+        type.innerHTML = noteType;
+
+        pitch.appendChild(stepElement);
+        pitch.appendChild(octaveElement);
+        note.appendChild(pitch);
+        note.appendChild(durationElement);
+        note.appendChild(type);
+
+        return note;
     }
 
     function copyXML() {
