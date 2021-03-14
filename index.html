@@ -84,17 +84,17 @@
 <p style="display: inline-block; margin-right: 21px; margin-top: 0; margin-bottom: 0">Bass: </p><input type="text" id="lowerLimitBass" placeholder="Lower limit (e.g. A2)"/><input type="text" id="upperLimitBass" placeholder="Upper limit (e.g. G3)"/>
 <p>Practice Mode</p>
 <label>
-    <input type="radio" id="practiceModeTreble" name="practiceMode" value="trebleClef"/>
+    <input type="radio" id="practiceModeTreble" name="practiceMode" value="practiceModeTreble"/>
     Treble Clef
 </label>
 <br>
 <label>
-    <input type="radio" id="practiceModeBass" name="practiceMode" value="bassClef"/>
+    <input type="radio" id="practiceModeBass" name="practiceMode" value="practiceModeBass"/>
     Bass Clef
 </label>
 <br>
 <label>
-    <input type="radio" id="practiceModePiano" name="practiceMode" value="piano"/>
+    <input type="radio" id="practiceModePiano" name="practiceMode" value="practiceModePiano"/>
     Piano (Both)
 </label>
 <p id="notificationText"></p>
@@ -111,7 +111,15 @@
             canvas.getContext("2d").clear();
         }
 
-        baseMusicXML = new DOMParser().parseFromString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\"><score-partwise version=\"3.1\"><part-list><score-part id=\"P1\"><part-name>Music</part-name></score-part></part-list><part id=\"P1\"></part></score-partwise>", "application/xml");
+        baseMusicXML = new DOMParser().parseFromString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\"><score-partwise version=\"3.1\"></score-partwise>", "application/xml");
+
+        let practiceMode = document.querySelector('input[name="practiceMode"]:checked').value;
+        baseMusicXML.getElementsByTagName("score-partwise")[0].appendChild(createPartList(practiceMode));
+
+        baseMusicXML.getElementsByTagName("score-partwise")[0].appendChild(createPart("P1"));
+        if (practiceMode === "practiceModePiano") {
+            baseMusicXML.getElementsByTagName("score-partwise")[0].appendChild(createPart("P2"));
+        }
 
         for (let i = 0; i < 20; i++) {
             let measure = createMeasure();
@@ -126,11 +134,11 @@
                 measure.appendChild(attributes);
             }
             for (let j = 0; j < 4; j++) {
-                let lowerLimit = document.getElementById("lowerLimit").value;
+                let lowerLimit = document.getElementById("lowerLimitTreble").value;
                 if (!lowerLimit) {
                     lowerLimit = "A2";
                 }
-                let upperLimit = document.getElementById("upperLimit").value;
+                let upperLimit = document.getElementById("upperLimitTreble").value;
                 if (!upperLimit) {
                     upperLimit = "G3";
                 }
@@ -158,6 +166,49 @@
     }
 
     generateWorksheet();
+
+    function createPartList(practiceMode) {
+        let partListElement = createElement("part-list");
+
+        switch (practiceMode) {
+            case "practiceModeTreble":
+                let scorePartTrebleElement = createElement("score-part");
+                let partNameTrebleElement = createElement("part-name");
+                scorePartTrebleElement.id = "P1";
+                partNameTrebleElement.innerHTML = "Treble";
+                scorePartTrebleElement.appendChild(partNameTrebleElement);
+                partListElement.appendChild(scorePartTrebleElement);
+                break;
+            case "practiceModeBass":
+                let scorePartBassElement = createElement("score-part");
+                let partNameBassElement = createElement("part-name");
+                scorePartBassElement.id = "P1";
+                partNameBassElement.innerHTML = "Bass";
+                scorePartBassElement.appendChild(partNameBassElement);
+                partListElement.appendChild(scorePartBassElement);
+                break;
+            case "practiceModePiano":
+                let scorePartPianoTrebleElement = createElement("score-part");
+                let partNamePianoTrebleElement = createElement("part-name");
+                let scorePartPianoBassElement = createElement("score-part");
+                let partNamePianoBassElement = createElement("part-name");
+                scorePartPianoTrebleElement.id = "P1";
+                partNamePianoTrebleElement.innerHTML = "Treble";
+                scorePartPianoBassElement.id = "P2";
+                partNamePianoBassElement.innerHTML = "Bass";
+                partListElement.appendChild(scorePartPianoTrebleElement);
+                partListElement.appendChild(scorePartPianoBassElement);
+                break;
+        }
+
+        return partListElement;
+    }
+
+    function createPart(partID) {
+        let partElement = createElement("part");
+        partElement.id = partID;
+        return partElement;
+    }
 
     function showNotificationText(text) {
         document.getElementById("notificationText").innerText = text;
