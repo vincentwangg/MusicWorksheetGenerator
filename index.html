@@ -78,8 +78,26 @@
     }
 </script>
 <!--<button onclick="startDrawing()">Start drawing</button>-->
-<input type="text" id="lowerLimit" placeholder="Lower limit (e.g. A2)"/>
-<input type="text" id="upperLimit" placeholder="Upper limit (e.g. G3)"/>
+<p>Note Limits</p>
+<p style="display: inline-block; margin-right: 10px; margin-top: 0; margin-bottom: 0">Treble: </p><input type="text" id="lowerLimitTreble" placeholder="Lower limit (e.g. A2)"/><input type="text" id="upperLimitTreble" placeholder="Upper limit (e.g. G3)"/>
+<br>
+<p style="display: inline-block; margin-right: 21px; margin-top: 0; margin-bottom: 0">Bass: </p><input type="text" id="lowerLimitBass" placeholder="Lower limit (e.g. A2)"/><input type="text" id="upperLimitBass" placeholder="Upper limit (e.g. G3)"/>
+<p>Practice Mode</p>
+<label>
+    <input type="radio" id="practiceModeTreble" name="practiceMode" value="trebleClef"/>
+    Treble Clef
+</label>
+<br>
+<label>
+    <input type="radio" id="practiceModeBass" name="practiceMode" value="bassClef"/>
+    Bass Clef
+</label>
+<br>
+<label>
+    <input type="radio" id="practiceModePiano" name="practiceMode" value="piano"/>
+    Piano (Both)
+</label>
+<p id="notificationText"></p>
 <button onclick="generateWorksheet()">Generate new worksheet</button>
 <div id="osmdContainer"></div>
 <button onclick="copyXML()">Copy XML to clipboard</button>
@@ -141,8 +159,14 @@
 
     generateWorksheet();
 
+    function showNotificationText(text) {
+        document.getElementById("notificationText").innerText = text;
+        setTimeout(() => {
+            document.getElementById("notificationText").innerText = "";
+        }, 1000);
+    }
+
     function startDrawing() {
-        console.log("Start drawing");
         // Allow drawing on canvas
         let canvas = document.getElementById("osmdCanvasVexFlowBackendCanvas1");
 
