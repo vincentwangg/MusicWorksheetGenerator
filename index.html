@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apex Recoil Simulator</title>
+</head>
+<body>
+<div>
+    <p id="output"></p>
+</div>
+
+<script>
+    let prettifyXml = function(sourceXml)
+    {
+        let xmlDoc = new DOMParser().parseFromString(sourceXml, 'application/xml');
+        let xsltDoc = new DOMParser().parseFromString([
+            // describes how we want to modify the XML - indent everything
+            '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
+            '  <xsl:strip-space elements="*"/>',
+            '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
+            '    <xsl:value-of select="normalize-space(.)"/>',
+            '  </xsl:template>',
+            '  <xsl:template match="node()|@*">',
+            '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
+            '  </xsl:template>',
+            '  <xsl:output indent="yes"/>',
+            '</xsl:stylesheet>',
+        ].join("\n"), 'application/xml');
+
+        let xsltProcessor = new XSLTProcessor();
+        xsltProcessor.importStylesheet(xsltDoc);
+        let resultDoc = xsltProcessor.transformToDocument(xmlDoc);
+        return new XMLSerializer().serializeToString(resultDoc);
+    };
+</script>
+<script>
+    // Random copied stuff
+    function copyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+
+        // Place in the top-left corner of screen regardless of scroll position.
+        textArea.style.position = 'fixed';
+        textArea.style.top = 0;
+        textArea.style.left = 0;
+
+        // Ensure it has a small width and height. Setting to 1px / 1em
+        // doesn't work as this gives a negative w/h on some browsers.
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+
+        // We don't need padding, reducing the size if it does flash render.
+        textArea.style.padding = 0;
+
+        // Clean up any borders.
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+
+        // Avoid flash of the white box if rendered for any reason.
+        textArea.style.background = 'transparent';
+
+
+        textArea.value = text;
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+        } catch (err) {
+            document.getElementById("debugOutput").innerText = "Error happened when copying to clipboard. Here's the text to manually copy for yourself: " + text;
+        }
+
+        document.body.removeChild(textArea);
+    }
+</script>
+<button onclick="copyXML()">Copy XML to clipboard</button>
+<script>
+    let baseMusicXML = new DOMParser().parseFromString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 3.1 Partwise//EN\" \"http://www.musicxml.org/dtds/partwise.dtd\"><score-partwise version=\"3.1\"><part-list><score-part id=\"P1\"><part-name>Music</part-name></score-part></part-list><part id=\"P1\"></part></score-partwise>", "application/xml");
+
+    let measure1 = baseMusicXML.createElement("measure");
+    measure1.setAttribute("number", "1");
+    baseMusicXML.getElementsByTagName("part")[0].appendChild(measure1);
+    let attributes = baseMusicXML.createElement("attributes");
+    attributes.appendChild(createTimeSignature());
+    attributes.appendChild(createClef("bass"));
+    measure1.appendChild(attributes);
+
+    // document.getElementById("output").innerText = prettifyXml(new XMLSerializer().serializeToString(baseMusicXML));
+    document.getElementById("output").innerText = new XMLSerializer().serializeToString(baseMusicXML);
+
+    function createElement(elementName) {
+        return baseMusicXML.createElement(elementName);
+    }
+
+    function createClef(clefMode = "treble") {
+        let clef = createElement("clef");
+        let sign = createElement("sign");
+        sign.innerHTML = clefMode === "treble" ? "G" : "F";
+        let line = createElement("line");
+        line.innerHTML = clefMode === "treble" ? "2" : "4";
+        clef.appendChild(sign);
+        clef.appendChild(line);
+        return clef;
+    }
+
+    function createTimeSignature() {
+        let time = createElement("time");
+        let beats = createElement("beats");
+        let beatType = createElement("beat-type");
+
+        time.appendChild(beats);
+        time.appendChild(beatType);
+
+        beats.innerHTML = "4";
+        beatType.innerHTML = "4";
+
+        return time;
+    }
+
+    function createNote() {
+        let note = createElement("note");
+        let pitch = createElement("pitch");
+        let step = createElement("step");
+        let octave = createElement("octave");
+    }
+
+    function copyXML() {
+        copyTextToClipboard(new XMLSerializer().serializeToString(baseMusicXML));
+    }
+</script>
+</body>
