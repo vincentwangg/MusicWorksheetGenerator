@@ -79,9 +79,13 @@
 </script>
 <!--<button onclick="startDrawing()">Start drawing</button>-->
 <p>Note Limits</p>
-<p style="display: inline-block; margin-right: 10px; margin-top: 0; margin-bottom: 0">Treble: </p><input type="text" id="lowerLimitTreble" placeholder="Lower limit (e.g. A2)"/><input type="text" id="upperLimitTreble" placeholder="Upper limit (e.g. G3)"/>
+<p style="display: inline-block; margin-right: 10px; margin-top: 0; margin-bottom: 0">Treble: </p>
+<input type="text" id="lowerLimitTreble" placeholder="Lower limit (e.g. A2)"/>
+<input type="text" id="upperLimitTreble" placeholder="Upper limit (e.g. G3)"/>
 <br>
-<p style="display: inline-block; margin-right: 21px; margin-top: 0; margin-bottom: 0">Bass: </p><input type="text" id="lowerLimitBass" placeholder="Lower limit (e.g. A2)"/><input type="text" id="upperLimitBass" placeholder="Upper limit (e.g. G3)"/>
+<p style="display: inline-block; margin-right: 21px; margin-top: 0; margin-bottom: 0">Bass: </p>
+<input type="text" id="lowerLimitBass" placeholder="Lower limit (e.g. A2)"/>
+<input type="text" id="upperLimitBass" placeholder="Upper limit (e.g. G3)"/>
 <p>Practice Mode</p>
 <label>
     <input type="radio" id="practiceModeTreble" name="practiceMode" value="practiceModeTreble"/>
@@ -121,33 +125,13 @@
             baseMusicXML.getElementsByTagName("score-partwise")[0].appendChild(createPart("P2"));
         }
 
-        for (let i = 0; i < 20; i++) {
-            let measure = createMeasure();
-
-            if (i === 0) {
-                let divisions = createElement("divisions");
-                let attributes = baseMusicXML.createElement("attributes");
-                divisions.innerHTML = "2";
-                attributes.appendChild(createTimeSignature());
-                attributes.appendChild(createClef("bass"));
-                measure.appendChild(divisions);
-                measure.appendChild(attributes);
-            }
-            for (let j = 0; j < 4; j++) {
-                let lowerLimit = document.getElementById("lowerLimitTreble").value;
-                if (!lowerLimit) {
-                    lowerLimit = "A2";
-                }
-                let upperLimit = document.getElementById("upperLimitTreble").value;
-                if (!upperLimit) {
-                    upperLimit = "G3";
-                }
-
-                measure.appendChild(createRandomNoteWithinRangeInclusive(lowerLimit, upperLimit)); // beginner mode bass clef
-                // measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
-                // measure.appendChild(createRandomNoteWithinRangeInclusive("B1", "F4")); // hard mode bass clef
-            }
-            baseMusicXML.getElementsByTagName("part")[0].appendChild(measure);
+        if (practiceMode === "practiceModeTreble") {
+            generateMeasures("treble");
+        } else if (practiceMode === "practiceModeBass") {
+            generateMeasures("bass");
+        } else {
+            generateMeasures("treble");
+            generateMeasures("bass");
         }
 
         // document.getElementById("output").innerText = new XMLSerializer().serializeToString(baseMusicXML);
@@ -166,6 +150,40 @@
     }
 
     generateWorksheet();
+
+    /**
+     * @param clef e.g. "treble", "bass"
+     */
+    function generateMeasures(clef) {
+        for (let i = 0; i < 20; i++) {
+            let measure = createMeasure();
+
+            if (i === 0) {
+                let divisions = createElement("divisions");
+                let attributes = baseMusicXML.createElement("attributes");
+                divisions.innerHTML = "2";
+                attributes.appendChild(createTimeSignature());
+                attributes.appendChild(createClef(clef));
+                measure.appendChild(divisions);
+                measure.appendChild(attributes);
+            }
+            for (let j = 0; j < 4; j++) {
+                let lowerLimit = clef === "treble" ? document.getElementById("lowerLimitTreble").value : document.getElementById("lowerLimitBass").value;
+                if (!lowerLimit) {
+                    lowerLimit = clef === "treble" ? "E4" : "A2";
+                }
+                let upperLimit = clef === "treble" ? document.getElementById("upperLimitTreble").value : document.getElementById("upperLimitBass").value;
+                if (!upperLimit) {
+                    upperLimit = clef === "treble" ? "F5" : "G3";
+                }
+
+                measure.appendChild(createRandomNoteWithinRangeInclusive(lowerLimit, upperLimit)); // beginner mode bass clef
+                // measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
+                // measure.appendChild(createRandomNoteWithinRangeInclusive("B1", "F4")); // hard mode bass clef
+            }
+            baseMusicXML.getElementsByTagName("part")[0].appendChild(measure);
+        }
+    }
 
     function createPartList(practiceMode) {
         let partListElement = createElement("part-list");
