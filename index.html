@@ -78,6 +78,8 @@
     }
 </script>
 <!--<button onclick="startDrawing()">Start drawing</button>-->
+<input type="text" id="lowerLimit" placeholder="Lower limit (e.g. A2)"/>
+<input type="text" id="upperLimit" placeholder="Upper limit (e.g. G3)"/>
 <button onclick="generateWorksheet()">Generate new worksheet</button>
 <div id="osmdContainer"></div>
 <button onclick="copyXML()">Copy XML to clipboard</button>
@@ -106,7 +108,16 @@
                 measure.appendChild(attributes);
             }
             for (let j = 0; j < 4; j++) {
-                measure.appendChild(createRandomNoteWithinRangeInclusive("A2", "G3")); // beginner mode bass clef
+                let lowerLimit = document.getElementById("lowerLimit").value;
+                if (!lowerLimit) {
+                    lowerLimit = "A2";
+                }
+                let upperLimit = document.getElementById("upperLimit").value;
+                if (!upperLimit) {
+                    upperLimit = "G3";
+                }
+
+                measure.appendChild(createRandomNoteWithinRangeInclusive(lowerLimit, upperLimit)); // beginner mode bass clef
                 // measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
                 // measure.appendChild(createRandomNoteWithinRangeInclusive("B1", "F4")); // hard mode bass clef
             }
