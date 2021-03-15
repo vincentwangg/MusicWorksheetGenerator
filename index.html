@@ -126,12 +126,12 @@
         }
 
         if (practiceMode === "practiceModeTreble") {
-            generateMeasures("treble");
+            generateMeasures("treble", "P1");
         } else if (practiceMode === "practiceModeBass") {
-            generateMeasures("bass");
+            generateMeasures("bass", "P1");
         } else {
-            generateMeasures("treble");
-            generateMeasures("bass");
+            generateMeasures("treble", "P1");
+            generateMeasures("bass", "P2");
         }
 
         // document.getElementById("output").innerText = new XMLSerializer().serializeToString(baseMusicXML);
@@ -145,7 +145,7 @@
             .load(new XMLSerializer().serializeToString(baseMusicXML))
             .then(() => osmd.render())
             .then(() => {
-                setTimeout(() => startDrawing(), 100);
+                setTimeout(() => startDrawing(), 200);
             });
     }
 
@@ -154,7 +154,7 @@
     /**
      * @param clef e.g. "treble", "bass"
      */
-    function generateMeasures(clef) {
+    function generateMeasures(clef, partID) {
         for (let i = 0; i < 20; i++) {
             let measure = createMeasure();
 
@@ -181,7 +181,12 @@
                 // measure.appendChild(createRandomNoteWithinRangeInclusive("D2", "C4")); // easy mode bass clef
                 // measure.appendChild(createRandomNoteWithinRangeInclusive("B1", "F4")); // hard mode bass clef
             }
-            baseMusicXML.getElementsByTagName("part")[0].appendChild(measure);
+            let allPartElements = baseMusicXML.getElementsByTagName("part");
+            for (let i = 0; i < allPartElements.length; i++) {
+                if (allPartElements[i].id === partID) {
+                    allPartElements[i].appendChild(measure);
+                }
+            }
         }
     }
 
